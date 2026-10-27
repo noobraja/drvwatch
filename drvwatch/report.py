@@ -130,6 +130,8 @@ def render_html(report: dict[str, Any]) -> str:
   .stat {{ background: #f4f4f5; border-radius: 8px; padding: .6rem .9rem; }}
   .stat b {{ display: block; font-size: 1.3rem; }}
   table {{ border-collapse: collapse; width: 100%; }}
+  .table-wrap {{ overflow-x: auto; }}
+  table {{ min-width: 760px; }}
   th, td {{ text-align: left; padding: .45rem .6rem; border-bottom: 1px solid #e4e4e7;
             vertical-align: top; }}
   th {{ font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: #71717a; }}
@@ -154,12 +156,14 @@ def render_html(report: dict[str, Any]) -> str:
   <div class="stat"><b>{counts['high']}</b>high findings</div>
   <div class="stat"><b>{counts['medium']}</b>medium findings</div>
 </div>
+<div class="table-wrap">
 <table>
 <thead><tr><th>Severity</th><th>Driver</th><th>State</th><th>Start</th><th>Signature</th><th>Findings</th></tr></thead>
 <tbody>
 {''.join(rows)}
 </tbody>
 </table>
+</div>
 </body>
 </html>
 """
