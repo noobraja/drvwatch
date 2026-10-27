@@ -1,5 +1,7 @@
 # drvwatch
 
+[![test](https://github.com/noobraja/drvwatch/actions/workflows/test.yml/badge.svg)](https://github.com/noobraja/drvwatch/actions/workflows/test.yml)
+
 Inventory the Windows kernel drivers on a host and flag the ones that look like
 **Bring Your Own Vulnerable Driver (BYOVD)** risk.
 
@@ -43,7 +45,7 @@ The question a defender actually needs answered is boring and specific:
 ## Install and run
 
 ```console
-git clone <your-repo-url>
+git clone https://github.com/noobraja/drvwatch.git
 cd drvwatch
 python -m drvwatch
 ```
