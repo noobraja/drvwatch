@@ -28,6 +28,21 @@ USER_WRITABLE_SEGMENTS = (
     "\\$recycle.bin\\",
 )
 
+# Locations the OS itself manages. DriverStore is where Windows stages packaged
+# drivers, so a driver running from there is normal and not a sideload signal.
+OS_MANAGED_SEGMENTS = (
+    "\\system32\\drivers\\",
+    "\\system32\\driverstore\\",
+)
+
+# Program Files is writable only by administrators, and anti-cheat and EDR
+# products routinely install their kernel component there (Riot Vanguard's
+# vgk.sys, for example). Worth noting, not worth escalating.
+INSTALL_DIR_SEGMENTS = (
+    "\\program files\\",
+    "\\program files (x86)\\",
+)
+
 BROKEN_SIGNATURE_STATES = ("HashMismatch", "NotTrusted", "UnknownError", "Incompatible")
 
 MICROSOFT_SIGNER_MARKER = "microsoft"
@@ -71,6 +86,28 @@ def analyze_driver(driver: dict[str, Any]) -> list[dict[str, str]]:
                 "T1543.003",
             )
         )
+    elif lowered and not any(seg in lowered for seg in OS_MANAGED_SEGMENTS):
+        if any(seg in lowered for seg in INSTALL_DIR_SEGMENTS):
+            findings.append(
+                _finding(
+                    "install_dir_path",
+                    "info",
+                    "Installed under Program Files, which is normal for "
+                    "anti-cheat and EDR kernel components.",
+                    "T1543.003",
+                )
+            )
+        else:
+            findings.append(
+                _finding(
+                    "nonstandard_path",
+                    "high",
+                    "Image is outside both System32\\drivers and "
+                    "System32\\DriverStore, which does not match how Windows "
+                    "manages drivers.",
+                    "T1543.003",
+                )
+            )
 
     if signature in BROKEN_SIGNATURE_STATES:
         findings.append(
@@ -100,17 +137,6 @@ def analyze_driver(driver: dict[str, Any]) -> list[dict[str, str]]:
                 "medium",
                 f"Signature status is {signature}, not Valid.",
                 "T1553.006",
-            )
-        )
-
-    if lowered and path and "\\system32\\drivers\\" not in lowered:
-        findings.append(
-            _finding(
-                "outside_drivers_dir",
-                "high",
-                "Image is outside System32\\drivers, which is the standard "
-                "location for OS-managed drivers.",
-                "T1543.003",
             )
         )
 

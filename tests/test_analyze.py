@@ -68,11 +68,29 @@ class PathTests(unittest.TestCase):
         self.assertIn("user_writable_path", rules(found))
         self.assertEqual(worst_severity(found), "critical")
 
-    def test_driver_outside_system32_is_high(self):
+    def test_driver_outside_os_directories_is_high(self):
         found = analyze_driver(
             driver(path=r"C:\Tools\mydriver.sys", signer="CN=Microsoft")
         )
-        self.assertIn("outside_drivers_dir", rules(found))
+        self.assertIn("nonstandard_path", rules(found))
+        self.assertEqual(worst_severity(found), "high")
+
+    def test_driverstore_is_os_managed(self):
+        found = analyze_driver(
+            driver(
+                path=r"C:\Windows\System32\DriverStore\FileRepository\nv.inf_amd64_1\nvlddmkm.sys",
+                signer="CN=Microsoft Windows",
+            )
+        )
+        self.assertEqual(found, [])
+
+    def test_program_files_is_informational_only(self):
+        found = analyze_driver(
+            driver(path=r"C:\Program Files\Riot Vanguard\vgk.sys", signer="CN=Microsoft Windows")
+        )
+        self.assertIn("install_dir_path", rules(found))
+        self.assertNotIn("nonstandard_path", rules(found))
+        self.assertEqual(worst_severity(found), "info")
 
     def test_missing_image_is_informational(self):
         found = analyze_driver(driver(path_exists=False, signer="CN=Microsoft"))

@@ -26,13 +26,13 @@ def _paint(text: str, severity: str, enabled: bool) -> str:
 
 def _short(value: Any, width: int) -> str:
     text = "-" if value in (None, "") else str(value)
-    return text if len(text) <= width else text[: width - 1] + "\u2026"
+    return text if len(text) <= width else text[: width - 3] + "..."
 
 
 def render_console(report: dict[str, Any], color: bool = True) -> str:
     summary = report["summary"]
     lines = []
-    lines.append(f"drvwatch \u2014 {summary['drivers']} kernel drivers, "
+    lines.append(f"drvwatch - {summary['drivers']} kernel drivers, "
                  f"{summary['drivers_at_risk']} at risk")
     counts = summary["findings_by_severity"]
     breakdown = "  ".join(
